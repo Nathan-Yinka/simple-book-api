@@ -251,12 +251,62 @@ This will significantly improve API response times, reduce server load, and enha
 - Linting with Flake8/Pylint
 - Pre-commit hooks to enforce code quality
 
+#### Docker Containerization
+I will have implemented Docker containerization to ensure consistent deployments across all environments. This includes:
+- **Dockerfile:** Optimized multi-stage build for production-ready images
+- **Docker Compose:** Complete development environment setup with all services
+- **Container Orchestration:** Easy scaling and deployment management
+- **Environment Isolation:** Consistent runtime environment regardless of host system
+- **Dependency Management:** All dependencies bundled in the container
+
+**Example Dockerfile:**
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+```
+
+**Example docker-compose.yml:**
+```yaml
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    container_name: django_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1
+    command: python manage.py runserver 0.0.0.0:8000
+```
+
+**Benefits:**
+- Consistent development and production environments
+- Easy onboarding for new developers
+- Simplified deployment process
+- Isolation from host system dependencies
+- Reproducible builds across different machines
+
 #### DevOps & Deployment
-- Docker containerization for consistent deployments
-- Docker Compose setup for local development
 - CI/CD pipeline for automated testing and deployment
 - Environment-based configuration management
 - Secure secrets management
+- Automated backup and recovery procedures
 
 #### Enhanced API Features
 - Return book functionality
@@ -281,7 +331,47 @@ backend/
 
 ## Getting Started
 
-### Installation
+### Option 1: Using Docker (Recommended)
+
+#### Prerequisites
+- Docker installed on your system
+- Docker Compose installed (usually comes with Docker Desktop)
+
+#### Run with Docker Compose
+```bash
+cd backend
+docker-compose up --build
+```
+
+The API will be available at `http://localhost:8000`
+
+#### Run in Detached Mode
+```bash
+docker-compose up -d --build
+```
+
+#### Stop the Container
+```bash
+docker-compose down
+```
+
+#### View Logs
+```bash
+docker-compose logs -f
+```
+
+#### Rebuild After Changes
+```bash
+docker-compose up --build
+```
+
+### Option 2: Local Installation
+
+#### Prerequisites
+- Python 3.9 or higher
+- pip (Python package manager)
+
+#### Installation
 ```bash
 cd backend
 python -m venv venv
@@ -289,10 +379,12 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Run the Server
+#### Run the Server
 ```bash
 python manage.py runserver
 ```
+
+The API will be available at `http://localhost:8000`
 
 ### API Endpoints
 - `POST /api/books/` - Create a book
